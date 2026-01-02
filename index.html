@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheapBuy - AI-Powered Price Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: background 0.3s;
+        }
+        .navbar.transparent {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        .navbar.solid {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        .navbar .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            color: #c0c0c0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #007bff;
+        }
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            transition: width 0.3s, left 0.3s;
+        }
+        .navbar a[data-section="home"]:hover::after,
+        .navbar a[data-section="home"].active::after {
+            background: #007bff;
+        }
+        .navbar a[data-section="bot"]:hover::after,
+        .navbar a[data-section="bot"].active::after {
+            background: #6f42c1;
+        }
+        .navbar a[data-section="account"]:hover::after,
+        .navbar a[data-section="account"].active::after {
+            background: linear-gradient(45deg, #6f42c1, #007bff);
+        }
+        .navbar a:hover::after,
+        .navbar a.active::after {
+            width: 100%;
+            left: 0;
+        }
+        .navbar .right-links {
+            display: flex;
+            gap: 1rem;
+        }
+        .section {
+            display: none;
+            min-height: 100vh;
+            padding: 5rem 0 2rem;
+        }
+        .section.active {
+            display: block;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Home Section */
+        #home-section .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        #home-section .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,123,255,0.3) 0%, transparent 70%);
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+        #home-section .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+        }
+        #home-section .hero h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #c0c0c0, #007bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #home-section .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        #home-section .hero .cta-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #007bff, #6f42c1);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #home-section .hero .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,123,255,0.3);
+        }
+        #home-section .about {
+            padding: 5rem 0;
+            text-align: center;
+            background: #000000;
+        }
+        #home-section .about h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #c0c0c0;
+        }
+        #home-section .about p {
+            max-width: 900px;
+            margin: 0 auto;
+            opacity: 0.9;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        #home-section .features {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
+        }
+        #home-section .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #c0c0c0;
+        }
+        #home-section .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        #home-section .feature-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #007bff;
+        }
+        #home-section .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,123,255,0.2);
+        }
+        #home-section .feature-card h3 {
+            color: #c0c0c0;
+            margin-bottom: 1rem;
+        }
+        /* Bot Section */
+        #bot-section {
+            background: linear-gradient(135deg, #000000 0%, #6f42c1 100%);
+            text-align: center;
+        }
+        #bot-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #c0c0c0;
+        }
+        #bot-section p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        #bot-section .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        #bot-section #chat-input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 50px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        #bot-section #chat-input::placeholder {
+            color: #cccccc;
+        }
+        #bot-section .send-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #007bff, #6f42c1);
+            color: #ffffff;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        #bot-section .send-btn:hover {
+            transform: translateY(-5px);
+        }
+        #bot-section #chat-response {
+            min-height: 100px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+        #bot-section .product-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        #bot-section .product-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #007bff;
+        }
+        #bot-section .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,123,255,0.2);
+        }
+        #bot-section .product-image {
+            width: 100px;
+            height: 100px;
+            background: #cccccc;
+            border-radius: 10px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+        }
+        #bot-section .product-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #c0c0c0;
+        }
+        #bot-section .product-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        #bot-section .product-platform {
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-bottom: 1rem;
+        }
+        #bot-section .open-link-btn {
+            background: linear-gradient(45deg, #007bff, #6f42c1);
+            color: #ffffff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        #bot-section .open-link-btn:hover {
+            transform: translateY(-2px);
+        }
+        /* Account Section */
+        #account-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
+        }
+        .account-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid #007bff;
+            width: 100%;
+            max-width: 400px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: normal;
+            padding: 0.5rem 0;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            font-weight: bold;
+        }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(45deg, #007bff, #6f42c1);
+        }
+        .form {
+            display: none;
+        }
+        .form.active {
+            display: block;
+        }
+        .form input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .form input::placeholder {
+            color: #cccccc;
+        }
+        .form button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, #007bff, #6f42c1);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        @media (max-width: 768px) {
+            #home-section .hero h1 {
+                font-size: 2rem;
+            }
+            #home-section .hero p {
+                font-size: 1rem;
+            }
+            .navbar .nav-links {
+                display: none;
+            }
+            .navbar .right-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar transparent">
+        <div class="container">
+            <h1>CheapBuy</h1>
+            <div class="nav-links">
+                <a href="#" data-section="home-section">Home</a>
+                <a href="#" data-section="bot-section">Bot</a>
+                <a href="#" data-section="account-section">Account</a>
+            </div>
+            <div class="right-links">
+                <a href="#" data-section="account-section" data-form="login">Sign In</a>
+                <a href="#" data-section="account-section" data-form="signup">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home-section" class="section active">
+        <div class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Find the Best Deals Instantly</h1>
+                    <p>Compare prices across platforms and save big with AI-powered suggestions.</p>
+                    <a href="#" class="cta-btn" data-section="bot">Start Saving Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="about">
+            <div class="container">
+                <h2>About CheapBuy</h2>
+                <p>CheapBuy is your ultimate AI-powered e-commerce companion. We help you find the best deals by comparing prices across multiple platforms, suggesting smarter alternatives, and providing instant insights through our intelligent chatbot. Save time and money with real-time price tracking and personalized recommendations tailored for Indian markets.</p>
+            </div>
+        </div>
+        <div class="features">
+            <div class="container">
+                <h2>Why Choose CheapBuy?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Instant Price Comparison</h3>
+                        <p>Get real-time price comparisons from multiple e-commerce sites in seconds.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Smart Alternative Suggestions</h3>
+                        <p>AI analyzes your product and suggests cheaper alternatives automatically.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Seamless AI Chat</h3>
+                        <p>Chat with our AI to get personalized recommendations and deal alerts.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Multi-Platform Coverage</h3>
+                        <p>Covers major platforms like Amazon, Flipkart, and more for comprehensive savings.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>INR-Focused Pricing</h3>
+                        <p>All comparisons and suggestions tailored for Indian Rupee pricing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="bot-section" class="section">
+        <div class="container">
+            <h2>AI Chatbot</h2>
+            <p>Paste a product URL or describe what you're looking for cheaper alternatives.</p>
+            <div class="chat-container">
+                <input type="text" id="chat-input" placeholder="Enter product name, URL, or 'cheaper alternatives'...">
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+                <div id="chat-response"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="account-section" class="section">
+        <div class="account-card">
+            <div class="tabs">
+                <div class="tab active" onclick="showForm('login')">LOGIN</div>
+                <div class="tab" onclick="showForm('signup')">SIGN UP</div>
+            </div>
+            <div id="login-form" class="form active">
+                <form onsubmit="return false;">
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+            <div id="signup-form" class="form">
+                <form onsubmit="return false;">
+                    <input type="text" placeholder="Name" required>
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <button type="submit">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            const navbar = document.querySelector('.navbar');
+            if (sectionId === 'home-section') {
+                navbar.classList.remove('solid');
+                navbar.classList.add('transparent');
+            } else {
+                navbar.classList.remove('transparent');
+                navbar.classList.add('solid');
+            }
+
+            const navLinks = document.querySelectorAll('.navbar a[data-section]');
+            navLinks.forEach(link => link.classList.remove('active'));
+            const activeLink = document.querySelector(`.navbar a[data-section="${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        document.querySelectorAll('.navbar a[data-section]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                showSection(sectionId);
+                const form = this.getAttribute('data-form');
+                if (form) {
+                    showForm(form);
+                }
+            });
+        });
+
+        document.querySelector('.cta-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const sectionId = this.getAttribute('data-section');
+            showSection(sectionId);
+        });
+
+        function showForm(formType) {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const tabs = document.querySelectorAll('.tab');
+
+            if (formType === 'login') {
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                loginForm.classList.remove('active');
+                signupForm.classList.add('active');
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input').value.trim();
+            const responseDiv = document.getElementById('chat-response');
+            responseDiv.innerHTML = 'Thinking...';
+
+            if (!input) {
+                responseDiv.textContent = 'Please enter a message.';
+                return;
+            }
+
+            const isUrl = /^https?:\/\//.test(input);
+            const hasKeywords = /cheaper|alternative|compare|low price|best deal/i.test(input);
+            const isCheaperMode = isUrl || hasKeywords;
+
+            if (isCheaperMode) {
+                displayProductCards();
+            } else {
+                responseDiv.textContent = 'This is a demo response. In a real implementation, this would provide information about "' + input + '". For cheaper alternatives, try including keywords like "cheaper" or a product URL.';
+            }
+        }
+
+        function displayProductCards() {
+            const responseDiv = document.getElementById('chat-response');
+            responseDiv.innerHTML = '';
+
+            const cardsContainer = document.createElement('div');
+            cardsContainer.className = 'product-cards';
+
+            const platforms = ['Amazon.in', 'Flipkart.com', 'Myntra.com', 'Ajio.com', 'Snapdeal.com'];
+            const products = [];
+
+            for (let i = 0; i < 50; i++) {
+                const name = 'Demo Product ' + (i + 1);
+                const price = '₹' + (Math.floor(Math.random() * 5000) + 500);
+                const platform = platforms[i % platforms.length];
+                const link = 'https://' + platform.toLowerCase().replace('.com', '').replace('.in', '') + '.com';
+                products.push({ name, price, platform, link });
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-image">Image</div>
+                    <div class="product-title">${product.name}</div>
+                    <div class="product-price">${product.price}</div>
+                    <div class="product-platform">${product.platform}</div>
+                    <button class="open-link-btn" onclick="window.open('${product.link}', '_blank')">OPEN LINK</button>
+                `;
+                cardsContainer.appendChild(card);
+            });
+
+            responseDiv.appendChild(cardsContainer);
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialize
+        showSection('home-section');
+    </script>
+</body>
+</html>
