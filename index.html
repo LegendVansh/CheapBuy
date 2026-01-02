@@ -326,80 +326,128 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%);
         }
         .account-card {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 2px solid #007bff;
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
+        }
+        .account-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 25px;
+            padding: 2px;
+            background: linear-gradient(45deg, #007bff, #6f42c1, #e91e63);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            z-index: -1;
         }
         .tabs {
             display: flex;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
         }
         .tab {
             flex: 1;
             background: none;
             border: none;
-            color: #ffffff;
-            font-size: 1rem;
-            font-weight: normal;
-            padding: 0.5rem 0;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.2rem;
+            font-weight: 500;
+            padding: 1rem 0;
             cursor: pointer;
             position: relative;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .tab:hover {
+            color: #007bff;
         }
         .tab.active {
-            font-weight: bold;
+            font-weight: 700;
+            color: #ffffff;
         }
         .tab.active::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 20%;
-            width: 60%;
-            height: 2px;
+            bottom: -1px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
             background: linear-gradient(45deg, #007bff, #6f42c1);
+            border-radius: 2px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { width: 0; left: 50%; }
+            to { width: 50%; left: 25%; }
         }
         .form {
-            display: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-30px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .form.active {
-            display: block;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
         }
         .form input {
             width: 100%;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
             border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.08);
             color: #ffffff;
             font-size: 1rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+        .form input:focus {
+            outline: none;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), 0 0 0 3px rgba(0,123,255,0.3);
+            background: rgba(255, 255, 255, 0.12);
         }
         .form input::placeholder {
-            color: #cccccc;
+            color: #aaaaaa;
+        }
+        .form input:hover {
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(0,123,255,0.2);
         }
         .form button {
             width: 100%;
-            padding: 1rem;
+            padding: 1.2rem 1.5rem;
             background: linear-gradient(45deg, #007bff, #6f42c1);
             color: #ffffff;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,123,255,0.4);
         }
         .form button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,123,255,0.5);
+        }
+        .form button:active {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
         }
         @media (max-width: 768px) {
             #home-section .hero h1 {
